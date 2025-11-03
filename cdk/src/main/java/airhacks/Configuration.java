@@ -36,9 +36,9 @@ public record Configuration(String appName,String bucketName) {
                 .build();
     }
 
-    public String functionName() {
+    public String functionName(String defaultName) {
         ZCfg.load(appName);
-        return ZCfg.string("function.name");
+        return ZCfg.string("function.name",defaultName);
     }
 
 

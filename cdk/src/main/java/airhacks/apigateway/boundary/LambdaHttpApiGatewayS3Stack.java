@@ -17,7 +17,7 @@ public class LambdaHttpApiGatewayS3Stack extends Stack {
         var addressBucketName = configuration.bucketName();
         var addressBucket = Bucket.fromBucketName(this, "ImportedAddressBucket", addressBucketName);
         var envEntries = Map.<String,String>of(Configuration.addressBucketNameKeyAsEnvEntry,addressBucketName);
-        var functionName = configuration.functionName();
+        var functionName = configuration.functionName(ConventionalDefaults.defaultFunctioName);
         var quarkusLambda = new QuarkusLambda(this,functionName,envEntries);
         var function = quarkusLambda.getFunction();
         addressBucket.grantReadWrite(function);

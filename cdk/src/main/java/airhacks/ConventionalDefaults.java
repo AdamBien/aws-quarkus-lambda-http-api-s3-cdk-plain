@@ -8,6 +8,7 @@ public interface ConventionalDefaults {
     int ONE_CPU = 1700;
     int ram = ONE_CPU;
     String defaultRegion = "eu-central-1";
+    String defaultFunctioName = "airhacks_QuarkusHttpAPIS3";
 
 
     static String stackName(String appName,String stackName){
