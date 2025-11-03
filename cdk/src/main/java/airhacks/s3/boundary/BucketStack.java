@@ -17,7 +17,7 @@ public class BucketStack extends Stack {
     public BucketStack(Construct scope, Configuration configuration) {
         super(scope, ConventionalDefaults.stackName(configuration.appName(), "bucket"),
                 configuration.stackProperties());
-        this.addressesBucket = Buckets.createAddressesBucket(this, configuration);
+        this.addressesBucket = Buckets.createAddressesBucket(this);
     }
 
     public String bucketName(){

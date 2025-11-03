@@ -6,8 +6,22 @@ import airhacks.configuration.control.ZCfg;
 import software.amazon.awscdk.Environment;
 import software.amazon.awscdk.StackProps;
 
-public record Configuration(String appName) {
+public record Configuration(String appName,String bucketName) {
 
+ public final static String addressBucketNameKey = "address.bucket.name";
+
+     public final static String addressBucketNameKeyAsEnvEntry = addressBucketNameKey
+            .replace(".", "_")
+            .toUpperCase();
+
+
+    public Configuration(String appName){
+        this(appName, null);
+    }
+
+    Configuration withBucketName(String generatedName){
+        return new Configuration(appName, generatedName);
+    }
 
     public StackProps stackProperties() {
         ZCfg.load(appName);

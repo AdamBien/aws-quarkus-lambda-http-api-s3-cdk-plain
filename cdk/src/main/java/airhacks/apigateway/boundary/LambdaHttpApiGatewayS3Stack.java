@@ -14,7 +14,7 @@ public class LambdaHttpApiGatewayS3Stack extends Stack {
 
     public LambdaHttpApiGatewayS3Stack(Construct scope, Configuration configuration) {
         super(scope, ConventionalDefaults.stackName(configuration.appName(), "lambda-http-api-s3"), configuration.stackProperties());
-        var addressBucketName = configuration.addressBucketName();
+        var addressBucketName = configuration.bucketName();
         var addressBucket = Bucket.fromBucketName(this, "ImportedAddressBucket", addressBucketName);
         var envEntries = Map.<String,String>of(Configuration.addressBucketNameKeyAsEnvEntry,addressBucketName);
         var functionName = configuration.functionName();

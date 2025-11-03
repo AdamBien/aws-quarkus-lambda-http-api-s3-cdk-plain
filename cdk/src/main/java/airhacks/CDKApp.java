@@ -17,8 +17,10 @@ public interface CDKApp {
         Tags.of(app).add("environment", "development");
         Tags.of(app).add("application", appName);
         var configuration = new Configuration(appName);
-        new BucketStack(app, configuration);
-        new LambdaHttpApiGatewayS3Stack(app, configuration);
+        var bucketStack = new BucketStack(app, configuration);
+        var generatedBucketName = bucketStack.bucketName(); 
+        var completeConfiguration = configuration.withBucketName(generatedBucketName);
+        new LambdaHttpApiGatewayS3Stack(app, completeConfiguration);
 
         app.synth();  
     }
