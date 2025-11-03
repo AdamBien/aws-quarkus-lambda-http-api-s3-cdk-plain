@@ -45,6 +45,8 @@ public record Configuration(String appName,String bucketName) {
     public List<String> allowOrigins() {
         ZCfg.load(appName);
         var origin = ZCfg.string("http.api.allow.origins");
+        if(origin == null)
+            return List.of();
         return List.of(origin);
     }
 }
