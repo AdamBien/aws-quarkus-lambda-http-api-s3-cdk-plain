@@ -65,11 +65,9 @@ class AddressesResourceIT {
         assertEquals("60601", updatedAddress.getString("postalCode"));
         assertEquals("123 Main St", updatedAddress.getString("street")); // Unchanged
         
-        // Delete address
         var deleteResponse = client.deleteAddress(addressId);
         assertEquals(204, deleteResponse.getStatus());
         
-        // Verify deletion
         var getAfterDeleteResponse = client.getAddress(addressId);
         assertEquals(404, getAfterDeleteResponse.getStatus());
     }

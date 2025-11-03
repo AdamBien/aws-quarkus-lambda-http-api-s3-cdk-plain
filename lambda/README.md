@@ -23,16 +23,9 @@ Built following BCE (Boundary-Control-Entity) pattern:
 mvn clean package
 ```
 
-## Testing
-
-```bash
-mvn test
-```
-
 ## API Endpoints
 
 - `POST /addresses` - Create address
 - `GET /addresses/{id}` - Retrieve address by ID
-- `GET /addresses?page=0&size=20` - List addresses with pagination
 - `PUT /addresses/{id}` - Update address (partial updates supported)
 - `DELETE /addresses/{id}` - Remove address
