@@ -1,0 +1,38 @@
+# Lambda Module
+
+Quarkus-based AWS Lambda function providing RESTful address management API with S3
+
+## Architecture
+
+Built following BCE (Boundary-Control-Entity) pattern:
+
+- **Boundary**: JAX-RS resources exposing HTTP endpoints
+- **Control**: Business logic for validation and storage operations
+- **Entity**: Domain objects and data transfer records
+
+## Technology Stack
+
+- Quarkus 3.26.2 with Amazon Lambda HTTP support
+- AWS SDK for S3
+- Jakarta REST (JAX-RS) with JSON-B serialization
+- JUnit 5 with AssertJ for testing
+
+## Build
+
+```bash
+mvn clean package
+```
+
+## Testing
+
+```bash
+mvn test
+```
+
+## API Endpoints
+
+- `POST /addresses` - Create address
+- `GET /addresses/{id}` - Retrieve address by ID
+- `GET /addresses?page=0&size=20` - List addresses with pagination
+- `PUT /addresses/{id}` - Update address (partial updates supported)
+- `DELETE /addresses/{id}` - Remove address
