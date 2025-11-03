@@ -1,4 +1,15 @@
-# IaC
+# CDK Infrastructure
 
+AWS infrastructure definition using CDK in Java.
 
-See you at: [airhacks.live](https://airhacks.live)
+## Resources
+
+- Quarkus Lambda function
+- HTTP API Gateway
+- S3 bucket integration with read/write permissions
+
+## Deployment
+
+```bash
+mvn clean package && cdk deploy
+```
