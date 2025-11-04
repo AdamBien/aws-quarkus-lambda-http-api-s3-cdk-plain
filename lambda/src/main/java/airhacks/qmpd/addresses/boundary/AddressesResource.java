@@ -3,7 +3,6 @@ package airhacks.qmpd.addresses.boundary;
 import airhacks.qmpd.addresses.control.AddressStorage;
 import airhacks.qmpd.addresses.control.AddressValidator;
 import airhacks.qmpd.addresses.entity.Address;
-import airhacks.qmpd.addresses.entity.AddressNotFoundException;
 import airhacks.qmpd.addresses.entity.AddressResponse;
 import airhacks.qmpd.addresses.entity.AddressUpdateRequest;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -24,7 +23,6 @@ import jakarta.ws.rs.core.Response;
  * JAX-RS resource for address management operations.
  * 
  * Provides RESTful endpoints for CRUD operations on address records.
- * Follows MicroProfile guidelines with plural resource naming.
  */
 @Path("/addresses")
 @ApplicationScoped
@@ -37,12 +35,6 @@ public class AddressesResource {
     @Inject
     AddressStorage storage;
     
-    /**
-     * Creates a new address record.
-     *
-     * @param json the address creation request
-     * @return Response with created address and 201 status
-     */
     @POST
     public Response createAddress(JsonObject json) {
         LOGGER.log(System.Logger.Level.INFO, "Creating address from request: {0}", json);
@@ -57,12 +49,6 @@ public class AddressesResource {
             .build();
     }
     
-    /**
-     * Retrieves a specific address by ID.
-     * 
-     * @param id the address identifier
-     * @return Response with address data and 200 status
-     */
     @GET
     @Path("/{id}")
     public Response getAddress(@PathParam("id") String id) {
@@ -70,26 +56,16 @@ public class AddressesResource {
         if (addressOpt.isEmpty()) {
             throw new AddressNotFoundException(id);
         }
-        
         var address = addressOpt.get();
         var response = AddressResponse.from(address);
-        
         return Response.ok(response.toJSON()).build();
     }
     
     
-    /**
-     * Updates an existing address record.
-     * 
-     * @param id the address identifier
-     * @param request the address update request
-     * @return Response with updated address and 200 status
-     */
     @PUT
     @Path("/{id}")
     public Response updateAddress(@PathParam("id") String id, JsonObject json) {
         var request = AddressUpdateRequest.fromJSON(json);
-        // Verify address exists
         var existingAddressOpt = storage.findById(id);
         if (existingAddressOpt.isEmpty()) {
             throw new AddressNotFoundException(id);
@@ -104,17 +80,10 @@ public class AddressesResource {
         return Response.ok(response.toJSON()).build();
     }
     
-    /**
-     * Deletes an address record.
-     * 
-     * @param id the address identifier
-     * @return Response with 204 No Content status
-     */
     @DELETE
     @Path("/{id}")
     public Response deleteAddress(@PathParam("id") String id) {
         storage.remove(id);
-        
         return Response.noContent().build();
     }
 }
