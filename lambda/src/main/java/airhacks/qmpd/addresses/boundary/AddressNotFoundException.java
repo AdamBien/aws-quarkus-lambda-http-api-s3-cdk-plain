@@ -1,4 +1,4 @@
-package airhacks.qmpd.addresses.entity;
+package airhacks.qmpd.addresses.boundary;
 
 import jakarta.json.Json;
 import jakarta.ws.rs.NotFoundException;
