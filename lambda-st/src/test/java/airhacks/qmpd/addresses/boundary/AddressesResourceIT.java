@@ -4,22 +4,32 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * System integration tests for AddressesResource.
- * 
+ * Verifies end-to-end address management through the deployed HTTP API
  */
 @QuarkusTest
 class AddressesResourceIT {
-    
+
     @Inject
     @RestClient
     AddressesResourceClient client;
+
+    @BeforeAll
+    static void verifyPreconditions() {
+        System.out.println("testing with: ");
+        var baseUri = ConfigProvider
+            .getConfig()
+            .getOptionalValue("base_uri/mp-rest/url", String.class);
+        baseUri.ifPresentOrElse(System.out::println, ()-> System.out.println("base_uri/mp-rest/url not set"));
+    }
     
     @Test
     @DisplayName("Complete address lifecycle - create, read, update, delete")
