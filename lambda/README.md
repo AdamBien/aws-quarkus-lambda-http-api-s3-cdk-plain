@@ -12,9 +12,9 @@ Built following BCE (Boundary-Control-Entity) pattern:
 
 ## Technology Stack
 
-- Quarkus 3.26.2 with Amazon Lambda HTTP support
+- Quarkus with Amazon Lambda HTTP support
 - AWS SDK for S3
-- Jakarta REST (JAX-RS) with JSON-B serialization
+- Jakarta REST (JAX-RS) with JSON-P serialization
 - JUnit 5 with AssertJ for testing
 
 ## Build
