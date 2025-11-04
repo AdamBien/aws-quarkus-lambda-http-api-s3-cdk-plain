@@ -8,17 +8,16 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import airhacks.qmpd.addresses.entity.Address;
 import airhacks.qmpd.addresses.entity.AddressException;
-import airhacks.qmpd.addresses.entity.AddressNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.json.Json;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 /**
  * S3 storage implementation for address management.
@@ -53,14 +52,15 @@ public class AddressStorage {
      * @throws AddressException if storage operation fails
      */
     public Address store(Address address) {
+        var key = key(address.id());
         try {
             var json = address.toJSON().toString();
             var putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(address.id() + ".json")
-                .contentType("application/json")
-                .build();
-            
+                    .bucket(bucketName)
+                    .key(key)
+                    .contentType("application/json")
+                    .build();
+
             S3Access.CLIENT.putObject(putObjectRequest, RequestBody.fromString(json));
             logger.log(Logger.Level.DEBUG, "Stored address with id: {0}", address.id());
             return address;
@@ -69,7 +69,7 @@ public class AddressStorage {
             throw new AddressException("Failed to store address: " + e.getMessage(), e);
         }
     }
-    
+
     /**
      * Finds an address by its unique identifier.
      * 
@@ -78,17 +78,18 @@ public class AddressStorage {
      * @throws AddressException if retrieval operation fails
      */
     public Optional<Address> findById(String id) {
+        var key = key(id);
         try {
             var getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
-                .key(id + ".json")
-                .build();
-            
+                    .bucket(bucketName)
+                    .key(key)
+                    .build();
+
             var response = S3Access.CLIENT.getObject(getObjectRequest);
             var jsonReader = Json.createReader(response);
             var jsonObject = jsonReader.readObject();
             var address = Address.fromJSON(jsonObject);
-            
+
             logger.log(Logger.Level.DEBUG, "Found address with id: {0}", id);
             return Optional.of(address);
         } catch (NoSuchKeyException e) {
@@ -99,7 +100,7 @@ public class AddressStorage {
             throw new AddressException("Failed to retrieve address: " + e.getMessage(), e);
         }
     }
-    
+
     /**
      * Retrieves all address records from S3.
      * 
@@ -129,29 +130,24 @@ public class AddressStorage {
             throw new AddressException("Failed to retrieve addresses: " + e.getMessage(), e);
         }
     }
-    
-    
+
     /**
      * Updates an existing address record.
-     * 
+     *
      * @param address the address with updated information
      * @return the updated address
-     * @throws AddressNotFoundException if address does not exist
-     * @throws AddressException if update operation fails
+     * @throws AddressException         if update operation fails
      */
     public Address update(Address address) {
+        var key = key(address);
         try {
-            if (!exists(address.id())) {
-                throw new AddressNotFoundException(address.id());
-            }
-            
             var json = address.toJSON().toString();
             var putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(address.id() + ".json")
-                .contentType("application/json")
-                .build();
-            
+                    .bucket(bucketName)
+                    .key(key)
+                    .contentType("application/json")
+                    .build();
+
             S3Access.CLIENT.putObject(putObjectRequest, RequestBody.fromString(json));
             logger.log(Logger.Level.DEBUG, "Updated address with id: {0}", address.id());
             return address;
@@ -160,56 +156,26 @@ public class AddressStorage {
             throw new AddressException("Failed to update address: " + e.getMessage(), e);
         }
     }
-    
+
     /**
      * Removes an address record from S3.
-     * 
+     *
      * @param id the address identifier to remove
-     * @throws AddressNotFoundException if address does not exist
-     * @throws AddressException if deletion operation fails
+     * @throws AddressException         if deletion operation fails
      */
     public void remove(String id) {
+        var key = key(id);
         try {
-            if (!exists(id)) {
-                throw new AddressNotFoundException(id);
-            }
-
             var deleteObjectRequest = DeleteObjectRequest.builder()
-                .bucket(bucketName)
-                .key(id + ".json")
-                .build();
+                    .bucket(bucketName)
+                    .key(key)
+                    .build();
 
             S3Access.CLIENT.deleteObject(deleteObjectRequest);
             logger.log(Logger.Level.DEBUG, "Removed address with id: {0}", id);
         } catch (S3Exception e) {
             logger.log(Logger.Level.ERROR, "Failed to remove address with id: {0}. Reason: {1}", id, e);
             throw new AddressException("Failed to remove address: " + e.getMessage(), e);
-        }
-    }
-    
-    /**
-     * Checks if an address exists in S3.
-     * 
-     * @param id the address identifier to check
-     * @return true if address exists, false otherwise
-     * @throws AddressException if existence check fails
-     */
-    public boolean exists(String id) {
-        try {
-            var headObjectRequest = HeadObjectRequest.builder()
-                .bucket(bucketName)
-                .key(id + ".json")
-                .build();
-            
-            S3Access.CLIENT.headObject(headObjectRequest);
-            logger.log(Logger.Level.DEBUG, "Address exists check for id {0}: true", id);
-            return true;
-        } catch (NoSuchKeyException e) {
-            logger.log(Logger.Level.DEBUG, "Address exists check for id {0}: false", id);
-            return false;
-        } catch (S3Exception e) {
-            logger.log(Logger.Level.ERROR, "Failed to check existence for address id: {0}. Reason: {1}", id, e);
-            throw new AddressException("Failed to check address existence: " + e.getMessage(), e);
         }
     }
 }
