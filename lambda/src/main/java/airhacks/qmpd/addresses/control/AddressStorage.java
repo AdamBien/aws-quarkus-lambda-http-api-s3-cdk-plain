@@ -29,12 +29,22 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
  */
 @ApplicationScoped
 public class AddressStorage {
-    
+
     private static final Logger logger = System.getLogger(AddressStorage.class.getName());
-    
-    @ConfigProperty(name = "address.bucket.name",defaultValue = "-not-set-")
+
+    @ConfigProperty(name = "address.bucket.name", defaultValue = "-not-set-")
     String bucketName;
-        
+
+
+    String key(String id){
+        return id + ".json";
+    }
+
+    String key(Address address){
+        var key = address.id();
+        return key(key);
+    }
+
     /**
      * Stores a new address record in S3.
      * 
