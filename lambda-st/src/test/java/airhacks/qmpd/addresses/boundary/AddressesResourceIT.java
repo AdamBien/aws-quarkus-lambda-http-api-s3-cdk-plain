@@ -3,18 +3,16 @@ package airhacks.qmpd.addresses.boundary;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.json.Json;
+import jakarta.json.JsonObject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * System integration tests for AddressesResource.
  * 
- * Tests complete CRUD workflows and error scenarios using
- * MicroProfile REST Client following two-module architecture.
- * Limited to 3 tests per MicroProfile guidelines.
  */
 @QuarkusTest
 class AddressesResourceIT {
@@ -26,7 +24,6 @@ class AddressesResourceIT {
     @Test
     @DisplayName("Complete address lifecycle - create, read, update, delete")
     void completeAddressLifecycle() {
-        // Create address
         var createRequest = Json.createObjectBuilder()
             .add("street", "123 Main St")
             .add("city", "Springfield")
@@ -36,20 +33,19 @@ class AddressesResourceIT {
             .build();
         
         var createResponse = client.createAddress(createRequest);
-        assertEquals(201, createResponse.getStatus());
-        
-        var createdAddress = createResponse.readEntity(jakarta.json.JsonObject.class);
+        assertThat(createResponse.getStatus()).isEqualTo(201);
+
+        var createdAddress = createResponse.readEntity(JsonObject.class);
         var addressId = createdAddress.getString("id");
-        assertNotNull(addressId);
-        assertEquals("123 Main St", createdAddress.getString("street"));
+        assertThat(addressId).isNotNull();
+        assertThat(createdAddress.getString("street")).isEqualTo("123 Main St");
         
-        // Read address
         var getResponse = client.getAddress(addressId);
-        assertEquals(200, getResponse.getStatus());
-        
-        var retrievedAddress = getResponse.readEntity(jakarta.json.JsonObject.class);
-        assertEquals(addressId, retrievedAddress.getString("id"));
-        assertEquals("Springfield", retrievedAddress.getString("city"));
+        assertThat(getResponse.getStatus()).isEqualTo(200);
+
+        var retrievedAddress = getResponse.readEntity(JsonObject.class);
+        assertThat(retrievedAddress.getString("id")).isEqualTo(addressId);
+        assertThat(retrievedAddress.getString("city")).isEqualTo("Springfield");
         
         // Update address
         var updateRequest = Json.createObjectBuilder()
@@ -58,18 +54,18 @@ class AddressesResourceIT {
             .build();
         
         var updateResponse = client.updateAddress(addressId, updateRequest);
-        assertEquals(200, updateResponse.getStatus());
-        
-        var updatedAddress = updateResponse.readEntity(jakarta.json.JsonObject.class);
-        assertEquals("Chicago", updatedAddress.getString("city"));
-        assertEquals("60601", updatedAddress.getString("postalCode"));
-        assertEquals("123 Main St", updatedAddress.getString("street")); // Unchanged
+        assertThat(updateResponse.getStatus()).isEqualTo(200);
+
+        var updatedAddress = updateResponse.readEntity(JsonObject.class);
+        assertThat(updatedAddress.getString("city")).isEqualTo("Chicago");
+        assertThat(updatedAddress.getString("postalCode")).isEqualTo("60601");
+        assertThat(updatedAddress.getString("street")).isEqualTo("123 Main St");
         
         var deleteResponse = client.deleteAddress(addressId);
-        assertEquals(204, deleteResponse.getStatus());
-        
+        assertThat(deleteResponse.getStatus()).isEqualTo(204);
+
         var getAfterDeleteResponse = client.getAddress(addressId);
-        assertEquals(404, getAfterDeleteResponse.getStatus());
+        assertThat(getAfterDeleteResponse.getStatus()).isEqualTo(404);
     }
     
     @Test
@@ -82,12 +78,12 @@ class AddressesResourceIT {
             .build();
         
         var response = client.createAddress(invalidRequest);
-        assertEquals(400, response.getStatus());
-        
-        var errorResponse = response.readEntity(jakarta.json.JsonObject.class);
-        assertEquals("VALIDATION_ERROR", errorResponse.getString("error"));
-        assertEquals("Address validation failed", errorResponse.getString("message"));
-        assertFalse(errorResponse.getJsonArray("details").isEmpty());
+        assertThat(response.getStatus()).isEqualTo(400);
+
+        var errorResponse = response.readEntity(JsonObject.class);
+        assertThat(errorResponse.getString("error")).isEqualTo("VALIDATION_ERROR");
+        assertThat(errorResponse.getString("message")).isEqualTo("Address validation failed");
+        assertThat(errorResponse.getJsonArray("details")).isNotEmpty();
         
         // Test invalid postal code format
         var invalidPostalRequest = Json.createObjectBuilder()
@@ -99,10 +95,10 @@ class AddressesResourceIT {
             .build();
         
         var postalResponse = client.createAddress(invalidPostalRequest);
-        assertEquals(400, postalResponse.getStatus());
-        
-        var postalErrorResponse = postalResponse.readEntity(jakarta.json.JsonObject.class);
-        assertEquals("VALIDATION_ERROR", postalErrorResponse.getString("error"));
+        assertThat(postalResponse.getStatus()).isEqualTo(400);
+
+        var postalErrorResponse = postalResponse.readEntity(JsonObject.class);
+        assertThat(postalErrorResponse.getString("error")).isEqualTo("VALIDATION_ERROR");
     }
     
 }
