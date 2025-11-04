@@ -109,24 +109,19 @@ public class AddressStorage {
     public List<Address> findAll() {
         try {
             var listObjectsRequest = ListObjectsV2Request.builder()
-                .bucket(bucketName)
-                .build();
-            
+                    .bucket(bucketName)
+                    .build();
+
             var response = S3Access.CLIENT.listObjectsV2(listObjectsRequest);
-            
-            var addresses = response.contents().stream()
-                .map(s3Object -> {
-                    var getObjectRequest = GetObjectRequest.builder()
-                        .bucket(bucketName)
-                        .key(s3Object.key())
-                        .build();
-                    var objectResponse = S3Access.CLIENT.getObject(getObjectRequest);
-                    var jsonReader = Json.createReader(objectResponse);
-                    var jsonObject = jsonReader.readObject();
-                    return Address.fromJSON(jsonObject);
-                })
-                .toList();
-            
+
+            var addresses = response.contents()
+                    .stream()
+                    .map(S3Object::key)
+                    .map(this::findById)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .toList();
+
             logger.log(Logger.Level.DEBUG, "Retrieved {0} addresses", addresses.size());
             return addresses;
         } catch (S3Exception e) {
