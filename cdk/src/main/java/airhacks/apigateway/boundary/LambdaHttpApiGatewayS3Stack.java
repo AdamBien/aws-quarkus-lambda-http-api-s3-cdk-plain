@@ -13,7 +13,8 @@ import software.constructs.Construct;
 public class LambdaHttpApiGatewayS3Stack extends Stack {
 
     public LambdaHttpApiGatewayS3Stack(Construct scope, Configuration configuration) {
-        super(scope, ConventionalDefaults.stackName(configuration.appName(), "lambda-http-api-s3"), configuration.stackProperties());
+        var stackName = ConventionalDefaults.stackName(configuration.appName(), "lambda-http-api-s3");
+        super(scope, stackName, configuration.stackProperties());
         var addressBucketName = configuration.bucketName();
         var addressBucket = Bucket.fromBucketName(this, "ImportedAddressBucket", addressBucketName);
         var envEntries = Map.<String,String>of(Configuration.addressBucketNameKeyAsEnvEntry,addressBucketName);
